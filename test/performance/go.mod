@@ -13,7 +13,7 @@ require (
 	github.com/hyperledger/fabric-sdk-go/test/integration v0.0.0-20200909154308-842c4b3ea51e // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.5.1
-	golang.org/x/net v0.0.0-20190613194153-d28f0bde5980
+	golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7
 	google.golang.org/grpc v1.29.1
 )
 

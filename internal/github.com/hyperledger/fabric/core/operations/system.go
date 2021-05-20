@@ -73,6 +73,9 @@ type System struct {
 	mux             *http.ServeMux
 	addr            string
 	versionGauge    metrics.Gauge
+
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 func NewSystem(o Options) *System {
@@ -85,6 +88,7 @@ func NewSystem(o Options) *System {
 		logger:  logger,
 		options: o,
 	}
+	system.ctx, system.cancel = context.WithCancel(context.Background())
 
 	system.initializeServer()
 	system.initializeHealthCheckHandler()
@@ -126,6 +130,8 @@ func (s *System) Start() error {
 }
 
 func (s *System) Stop() error {
+	s.cancel()
+
 	if s.collectorTicker != nil {
 		s.collectorTicker.Stop()
 		s.collectorTicker = nil
@@ -222,7 +228,7 @@ func (s *System) startMetricsTickers() error {
 		go goCollector.CollectAndPublish(s.collectorTicker.C)
 
 		s.sendTicker = time.NewTicker(writeInterval)
-		go s.statsd.SendLoop(s.sendTicker.C, network, address)
+		go s.statsd.SendLoop(s.ctx, s.sendTicker.C, network, address)
 	}
 
 	return nil
