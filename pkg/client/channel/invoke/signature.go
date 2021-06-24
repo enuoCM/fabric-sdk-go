@@ -40,9 +40,7 @@ func (f *SignatureValidationHandler) Handle(requestContext *RequestContext, clie
 }
 
 func (f *SignatureValidationHandler) validate(requestContext *RequestContext, ctx *ClientContext) error {
-	logger.Infof("validate %s",string(requestContext.Response.TransactionID))
-
-	defer utils.TimeCost("signature validation", string(requestContext.Response.TransactionID))()
+	defer utils.TimeCost("signature validation ", string(requestContext.Response.TransactionID))()
 	for _, r := range requestContext.Response.Responses {
 		if err := verifyProposalResponse(r, ctx); err != nil {
 			return err

@@ -156,7 +156,7 @@ func (f *EndorsementValidationHandler) Handle(requestContext *RequestContext, cl
 	}
 }
 func (f *EndorsementValidationHandler) handle(requestContext *RequestContext, clientContext *ClientContext) {
-	defer utils.TimeCost("endorsement validation", string(requestContext.Response.TransactionID))()
+	defer utils.TimeCost("endorsement validation ", string(requestContext.Response.TransactionID))()
 	err := f.validate(requestContext.Response.Responses)
 	if err != nil {
 		requestContext.Error = errors.WithMessage(err, "endorsement validation failed")
