@@ -14,7 +14,7 @@ func TimeCost(mark ...string) func() {
 		s := time.Since(now)
 		m := ""
 		if len(mark) == 1 {
-			m = mark[1]
+			m = mark[0]
 		} else {
 			for _, v := range mark {
 				m += v
