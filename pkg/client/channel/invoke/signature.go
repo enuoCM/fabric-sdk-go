@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package invoke
 
 import (
-	"github.com/hyperledger/fabric-sdk-go/pkg/client/common/utils"
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/common/verifier"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
 
@@ -40,7 +39,7 @@ func (f *SignatureValidationHandler) Handle(requestContext *RequestContext, clie
 }
 
 func (f *SignatureValidationHandler) validate(requestContext *RequestContext, ctx *ClientContext) error {
-	defer utils.TimeCost("signature validation ", string(requestContext.Response.TransactionID))()
+	// defer utils.TimeCost("signature validation ", string(requestContext.Response.TransactionID))()
 	for _, r := range requestContext.Response.Responses {
 		if err := verifyProposalResponse(r, ctx); err != nil {
 			return err
