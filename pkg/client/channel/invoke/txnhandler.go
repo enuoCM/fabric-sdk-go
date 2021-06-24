@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"strings"
 
+	"github.com/hyperledger/fabric-sdk-go/pkg/client/common/utils"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/status"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/options"
 	"github.com/pkg/errors"
@@ -34,7 +35,14 @@ type EndorsementHandler struct {
 
 //Handle for endorsing transactions
 func (e *EndorsementHandler) Handle(requestContext *RequestContext, clientContext *ClientContext) {
-
+	e.handle(requestContext, clientContext)
+	//Delegate to next step if any
+	if e.next != nil {
+		e.next.Handle(requestContext, clientContext)
+	}
+}
+func (e *EndorsementHandler) handle(requestContext *RequestContext, clientContext *ClientContext) {
+	defer utils.TimeCost("endorsement")()
 	if len(requestContext.Opts.Targets) == 0 {
 		requestContext.Error = status.New(status.ClientStatus, status.NoPeersFound.ToInt32(), "targets were not provided", nil)
 		return
@@ -67,10 +75,6 @@ func (e *EndorsementHandler) Handle(requestContext *RequestContext, clientContex
 		requestContext.Response.ChaincodeStatus = transactionProposalResponses[0].ChaincodeStatus
 	}
 
-	//Delegate to next step if any
-	if e.next != nil {
-		e.next.Handle(requestContext, clientContext)
-	}
 }
 
 //ProposalProcessorHandler for selecting proposal processors
@@ -80,7 +84,17 @@ type ProposalProcessorHandler struct {
 
 //Handle selects proposal processors
 func (h *ProposalProcessorHandler) Handle(requestContext *RequestContext, clientContext *ClientContext) {
-	//Get proposal processor, if not supplied then use selection service to get available peers as endorser
+	h.handle(requestContext, clientContext)
+
+	//Delegate to next step if any
+	if h.next != nil {
+		h.next.Handle(requestContext, clientContext)
+	}
+}
+
+func (h *ProposalProcessorHandler) handle(requestContext *RequestContext, clientContext *ClientContext) {
+	defer utils.TimeCost("proposal ")()
+	// Get proposal processor, if not supplied then use selection service to get available peers as endorser
 	if len(requestContext.Opts.Targets) == 0 {
 		var selectionOpts []options.Opt
 		if requestContext.SelectionFilter != nil {
@@ -96,11 +110,6 @@ func (h *ProposalProcessorHandler) Handle(requestContext *RequestContext, client
 			return
 		}
 		requestContext.Opts.Targets = endorsers
-	}
-
-	//Delegate to next step if any
-	if h.next != nil {
-		h.next.Handle(requestContext, clientContext)
 	}
 }
 
@@ -138,6 +147,7 @@ func (f *EndorsementValidationHandler) Handle(requestContext *RequestContext, cl
 }
 
 func (f *EndorsementValidationHandler) validate(txProposalResponse []*fab.TransactionProposalResponse) error {
+	defer utils.TimeCost("endorsement validation")()
 	var a1 *pb.ProposalResponse
 	for n, r := range txProposalResponse {
 		response := r.ProposalResponse.GetResponse()

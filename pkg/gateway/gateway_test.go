@@ -50,6 +50,7 @@ func TestConnectIdentityInCcp(t *testing.T) {
 		t.Fatalf("Failed to create gateway: %s", err)
 	}
 
+
 	if gw == nil {
 		t.Fatal("Failed to create gateway")
 	}
