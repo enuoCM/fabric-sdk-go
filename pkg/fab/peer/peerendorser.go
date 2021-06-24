@@ -153,10 +153,8 @@ func (p *peerEndorser) sendProposal(ctx reqContext.Context, proposal fab.Process
 		return nil, status.New(status.EndorserClientStatus, status.ConnectionFailed.ToInt32(), err.Error(), []interface{}{p.target})
 	}
 	defer p.releaseConn(ctx, conn)
-
 	endorserClient := pb.NewEndorserClient(conn)
 	resp, err := endorserClient.ProcessProposal(ctx, proposal.SignedProposal)
-
 	if err != nil {
 		logger.Errorf("process proposal failed [%s]", err)
 		rpcStatus, ok := grpcstatus.FromError(err)
@@ -168,7 +166,6 @@ func (p *peerEndorser) sendProposal(ctx reqContext.Context, proposal fab.Process
 		//check error from response (for :fabric v1.2 and later)
 		err = extractChaincodeErrorFromResponse(resp)
 	}
-
 	return resp, err
 }
 

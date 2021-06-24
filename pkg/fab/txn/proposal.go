@@ -9,6 +9,7 @@ package txn
 import (
 	reqContext "context"
 	"sync"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
@@ -112,6 +113,7 @@ func SendProposal(reqCtx reqContext.Context, proposal *fab.TransactionProposal, 
 	var wg sync.WaitGroup
 	errs := multi.Errors{}
 
+	now := time.Now()
 	for _, p := range targets {
 		wg.Add(1)
 		go func(processor fab.ProposalProcessor) {
@@ -134,7 +136,7 @@ func SendProposal(reqCtx reqContext.Context, proposal *fab.TransactionProposal, 
 		}(p)
 	}
 	wg.Wait()
-
+	logger.Infof("send tx %s, cost: %s", string(proposal.TxnID), time.Since(now).String())
 	return transactionProposalResponses, errs.ToError()
 }
 
