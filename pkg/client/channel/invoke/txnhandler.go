@@ -42,7 +42,7 @@ func (e *EndorsementHandler) Handle(requestContext *RequestContext, clientContex
 	}
 }
 func (e *EndorsementHandler) handle(requestContext *RequestContext, clientContext *ClientContext) {
-	defer utils.TimeCost("endorsement")()
+	defer utils.TimeCost("endorsement", string(requestContext.Response.TransactionID))()
 	if len(requestContext.Opts.Targets) == 0 {
 		requestContext.Error = status.New(status.ClientStatus, status.NoPeersFound.ToInt32(), "targets were not provided", nil)
 		return
@@ -93,7 +93,7 @@ func (h *ProposalProcessorHandler) Handle(requestContext *RequestContext, client
 }
 
 func (h *ProposalProcessorHandler) handle(requestContext *RequestContext, clientContext *ClientContext) {
-	defer utils.TimeCost("proposal ")()
+	defer utils.TimeCost("proposal ", string(requestContext.Response.TransactionID))()
 	// Get proposal processor, if not supplied then use selection service to get available peers as endorser
 	if len(requestContext.Opts.Targets) == 0 {
 		var selectionOpts []options.Opt
@@ -133,21 +133,30 @@ type EndorsementValidationHandler struct {
 //Handle for Filtering proposal response
 func (f *EndorsementValidationHandler) Handle(requestContext *RequestContext, clientContext *ClientContext) {
 
-	//Filter tx proposal responses
-	err := f.validate(requestContext.Response.Responses)
-	if err != nil {
-		requestContext.Error = errors.WithMessage(err, "endorsement validation failed")
-		return
-	}
+	f.handle(requestContext, clientContext)
+	//
+	// //Filter tx proposal responses
+	// err := f.validate(requestContext.Response.Responses)
+	// if err != nil {
+	// 	requestContext.Error = errors.WithMessage(err, "endorsement validation failed")
+	// 	return
+	// }
 
 	//Delegate to next step if any
 	if f.next != nil {
 		f.next.Handle(requestContext, clientContext)
 	}
 }
+func (f *EndorsementValidationHandler) handle(requestContext *RequestContext, clientContext *ClientContext) {
+	defer utils.TimeCost("endorsement validation", string(requestContext.Response.TransactionID))()
+	err := f.validate(requestContext.Response.Responses)
+	if err != nil {
+		requestContext.Error = errors.WithMessage(err, "endorsement validation failed")
+		return
+	}
+}
 
 func (f *EndorsementValidationHandler) validate(txProposalResponse []*fab.TransactionProposalResponse) error {
-	defer utils.TimeCost("endorsement validation")()
 	var a1 *pb.ProposalResponse
 	for n, r := range txProposalResponse {
 		response := r.ProposalResponse.GetResponse()

@@ -27,7 +27,7 @@ type SignatureValidationHandler struct {
 //Handle for Filtering proposal response
 func (f *SignatureValidationHandler) Handle(requestContext *RequestContext, clientContext *ClientContext) {
 	//Filter tx proposal responses
-	err := f.validate(requestContext.Response.Responses, clientContext)
+	err := f.validate(requestContext, clientContext)
 	if err != nil {
 		requestContext.Error = errors.WithMessage(err, "signature validation failed")
 		return
@@ -39,9 +39,9 @@ func (f *SignatureValidationHandler) Handle(requestContext *RequestContext, clie
 	}
 }
 
-func (f *SignatureValidationHandler) validate(txProposalResponse []*fab.TransactionProposalResponse, ctx *ClientContext) error {
-	defer utils.TimeCost("signature validation")()
-	for _, r := range txProposalResponse {
+func (f *SignatureValidationHandler) validate(requestContext *RequestContext, ctx *ClientContext) error {
+	defer utils.TimeCost("signature validation", string(requestContext.Response.TransactionID))()
+	for _, r := range requestContext.Response.Responses {
 		if err := verifyProposalResponse(r, ctx); err != nil {
 			return err
 		}
