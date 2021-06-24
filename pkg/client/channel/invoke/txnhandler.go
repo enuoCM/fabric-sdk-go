@@ -9,6 +9,7 @@ package invoke
 import (
 	"bytes"
 	"strings"
+	"time"
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/common/utils"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/status"
@@ -42,7 +43,10 @@ func (e *EndorsementHandler) Handle(requestContext *RequestContext, clientContex
 	}
 }
 func (e *EndorsementHandler) handle(requestContext *RequestContext, clientContext *ClientContext) {
-	defer utils.TimeCost("endorsement", string(requestContext.Response.TransactionID))()
+	now := time.Now()
+	defer func() {
+		logger.Infof("endorsement %s, cost: %s", string(requestContext.Response.TransactionID), time.Since(now).String())
+	}()
 	if len(requestContext.Opts.Targets) == 0 {
 		requestContext.Error = status.New(status.ClientStatus, status.NoPeersFound.ToInt32(), "targets were not provided", nil)
 		return
@@ -84,6 +88,10 @@ type ProposalProcessorHandler struct {
 
 //Handle selects proposal processors
 func (h *ProposalProcessorHandler) Handle(requestContext *RequestContext, clientContext *ClientContext) {
+	now := time.Now()
+	defer func() {
+		logger.Infof("handle all %v, cost: %s", requestContext.Response.TransactionID, time.Since(now).String())
+	}()
 	h.handle(requestContext, clientContext)
 
 	//Delegate to next step if any
@@ -93,7 +101,7 @@ func (h *ProposalProcessorHandler) Handle(requestContext *RequestContext, client
 }
 
 func (h *ProposalProcessorHandler) handle(requestContext *RequestContext, clientContext *ClientContext) {
-	defer utils.TimeCost("proposal ", string(requestContext.Response.TransactionID))()
+	defer utils.TimeCost("proposal")()
 	// Get proposal processor, if not supplied then use selection service to get available peers as endorser
 	if len(requestContext.Opts.Targets) == 0 {
 		var selectionOpts []options.Opt
