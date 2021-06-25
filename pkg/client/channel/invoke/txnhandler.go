@@ -9,7 +9,6 @@ package invoke
 import (
 	"bytes"
 	"strings"
-	"time"
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/status"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/options"
@@ -42,10 +41,10 @@ func (e *EndorsementHandler) Handle(requestContext *RequestContext, clientContex
 	}
 }
 func (e *EndorsementHandler) handle(requestContext *RequestContext, clientContext *ClientContext) {
-	now := time.Now()
-	defer func() {
-		logger.Infof("endorsement %s, cost: %s", string(requestContext.Response.TransactionID), time.Since(now).String())
-	}()
+	// now := time.Now()
+	// defer func() {
+	// 	logger.Infof("endorsement %s, cost: %s", string(requestContext.Response.TransactionID), time.Since(now).String())
+	// }()
 	if len(requestContext.Opts.Targets) == 0 {
 		requestContext.Error = status.New(status.ClientStatus, status.NoPeersFound.ToInt32(), "targets were not provided", nil)
 		return
