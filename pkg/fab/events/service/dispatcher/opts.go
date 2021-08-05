@@ -26,8 +26,8 @@ type params struct {
 
 func defaultParams() *params {
 	return &params{
-		eventConsumerBufferSize: 100,
-		eventConsumerTimeout:    500 * time.Millisecond,
+		eventConsumerBufferSize: 10000,
+		eventConsumerTimeout:    5000 * time.Millisecond,
 	}
 }
 
