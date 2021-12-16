@@ -9,6 +9,7 @@ package txn
 
 import (
 	reqContext "context"
+	"fmt"
 	"math/rand"
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/multi"
@@ -36,6 +37,7 @@ const (
 
 // New create a transaction with proposal response, following the endorsement policy.
 func New(request fab.TransactionRequest) (*fab.Transaction, error) {
+	defer logging.TraceTime()()
 	if len(request.ProposalResponses) == 0 {
 		return nil, errors.New("at least one proposal response is necessary")
 	}
@@ -103,6 +105,7 @@ func validateProposalResponses(responses []*fab.TransactionProposalResponse) err
 
 // Send send a transaction to the chain’s orderer service (one or more orderer endpoints) for consensus and committing to the ledger.
 func Send(reqCtx reqContext.Context, tx *fab.Transaction, orderers []fab.Orderer) (*fab.TransactionResponse, error) {
+	defer logging.TraceTime()()
 	if len(orderers) == 0 {
 		return nil, errors.New("orderers is nil")
 	}
@@ -158,6 +161,7 @@ func BroadcastPayload(reqCtx reqContext.Context, payload *common.Payload, ordere
 // broadcastEnvelope will send the given envelope to some orderer, picking random endpoints
 // until all are exhausted
 func broadcastEnvelope(reqCtx reqContext.Context, envelope *fab.SignedEnvelope, orderers []fab.Orderer) (*fab.TransactionResponse, error) {
+	defer logging.TraceTime()()
 	// Check if orderers are defined
 	if len(orderers) == 0 {
 		return nil, errors.New("orderers not set")
@@ -175,6 +179,7 @@ func broadcastEnvelope(reqCtx reqContext.Context, envelope *fab.SignedEnvelope, 
 
 	// Iterate them in a random order and try broadcasting 1 by 1
 	var errResp error
+	fmt.Printf("randOrderers len %d\n", len(randOrderers))
 	for _, i := range rand.Perm(len(randOrderers)) {
 		resp, err := sendBroadcast(reqCtx, envelope, randOrderers[i], ctxClient)
 		if err != nil {
@@ -187,6 +192,7 @@ func broadcastEnvelope(reqCtx reqContext.Context, envelope *fab.SignedEnvelope, 
 }
 
 func sendBroadcast(reqCtx reqContext.Context, envelope *fab.SignedEnvelope, orderer fab.Orderer, client ctxprovider.Client) (*fab.TransactionResponse, error) {
+	defer logging.TraceTime()()
 	logger.Debugf("Broadcasting envelope to orderer: %s\n", orderer.URL())
 	// create a childContext for this SendBroadcast orderer using the config's timeout value
 	// the parent context (reqCtx) should not have a timeout value

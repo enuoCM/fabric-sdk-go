@@ -17,6 +17,7 @@ package channel
 
 import (
 	reqContext "context"
+	"github.com/hyperledger/fabric-sdk-go/pkg/common/logging"
 	"time"
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/channel/invoke"
@@ -143,6 +144,7 @@ func addDefaultTimeout(tt fab.TimeoutType) RequestOption {
 //  the proposal responses from peer(s)
 func (cc *Client) InvokeHandler(handler invoke.Handler, request Request, options ...RequestOption) (Response, error) {
 	//Read execute tx options
+	defer logging.TraceTime()()
 	txnOpts, err := cc.prepareOptsFromOptions(cc.context, options...)
 	if err != nil {
 		return Response{}, err

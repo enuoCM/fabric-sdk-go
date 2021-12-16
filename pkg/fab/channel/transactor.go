@@ -8,6 +8,7 @@ package channel
 
 import (
 	reqContext "context"
+	"github.com/hyperledger/fabric-sdk-go/pkg/common/logging"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -165,6 +166,7 @@ func (t *Transactor) CreateTransactionHeader(opts ...fab.TxnHeaderOpt) (fab.Tran
 
 // SendTransactionProposal sends a TransactionProposal to the target peers.
 func (t *Transactor) SendTransactionProposal(proposal *fab.TransactionProposal, targets []fab.ProposalProcessor) ([]*fab.TransactionProposalResponse, error) {
+	defer logging.TraceTime()()
 	ctx, ok := contextImpl.RequestClientContext(t.reqCtx)
 	if !ok {
 		return nil, errors.New("failed get client context from reqContext for SendTransactionProposal")

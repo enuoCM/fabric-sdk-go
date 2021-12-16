@@ -8,6 +8,7 @@ package invoke
 
 import (
 	"bytes"
+	"github.com/hyperledger/fabric-sdk-go/pkg/common/logging"
 	"strings"
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/errors/status"
@@ -138,7 +139,7 @@ type EndorsementValidationHandler struct {
 
 //Handle for Filtering proposal response
 func (f *EndorsementValidationHandler) Handle(requestContext *RequestContext, clientContext *ClientContext) {
-
+	defer logging.TraceTime()()
 	f.handle(requestContext, clientContext)
 	//
 	// //Filter tx proposal responses
@@ -191,6 +192,7 @@ type CommitTxHandler struct {
 
 //Handle handles commit tx
 func (c *CommitTxHandler) Handle(requestContext *RequestContext, clientContext *ClientContext) {
+	defer logging.TraceTime()()
 	txnID := requestContext.Response.TransactionID
 
 	//Register Tx event
@@ -281,7 +283,7 @@ func getNext(next []Handler) Handler {
 }
 
 func createAndSendTransaction(sender fab.Sender, proposal *fab.TransactionProposal, resps []*fab.TransactionProposalResponse) (*fab.TransactionResponse, error) {
-
+	defer logging.TraceTime()()
 	txnRequest := fab.TransactionRequest{
 		Proposal:          proposal,
 		ProposalResponses: resps,
@@ -302,6 +304,7 @@ func createAndSendTransaction(sender fab.Sender, proposal *fab.TransactionPropos
 }
 
 func createAndSendTransactionProposal(transactor fab.ProposalSender, chrequest *Request, targets []fab.ProposalProcessor, opts ...fab.TxnHeaderOpt) ([]*fab.TransactionProposalResponse, *fab.TransactionProposal, error) {
+	defer logging.TraceTime()()
 	request := fab.ChaincodeInvokeRequest{
 		ChaincodeID:  chrequest.ChaincodeID,
 		Fcn:          chrequest.Fcn,

@@ -8,6 +8,7 @@ package txn
 
 import (
 	"encoding/hex"
+	"github.com/hyperledger/fabric-sdk-go/pkg/common/logging"
 	"hash"
 	"time"
 
@@ -114,6 +115,7 @@ func computeTxnID(nonce, creator []byte, h hash.Hash) (string, error) {
 
 // signPayload signs payload
 func signPayload(ctx contextApi.Client, payload *common.Payload) (*fab.SignedEnvelope, error) {
+	defer logging.TraceTime()()
 	payloadBytes, err := proto.Marshal(payload)
 	if err != nil {
 		return nil, errors.WithMessage(err, "marshaling of payload failed")

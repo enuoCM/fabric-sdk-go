@@ -13,6 +13,7 @@ package protoutil
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/hyperledger/fabric-sdk-go/pkg/common/logging"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -64,6 +65,7 @@ func CreateChaincodeProposalWithTxIDAndTransient(typ common.HeaderType, channelI
 // CreateChaincodeProposalWithTxIDNonceAndTransient creates a proposal from
 // given input
 func CreateChaincodeProposalWithTxIDNonceAndTransient(txid string, typ common.HeaderType, channelID string, cis *peer.ChaincodeInvocationSpec, nonce, creator []byte, transientMap map[string][]byte) (*peer.Proposal, string, error) {
+	defer logging.TraceTime()()
 	ccHdrExt := &peer.ChaincodeHeaderExtension{ChaincodeId: cis.ChaincodeSpec.ChaincodeId}
 	ccHdrExtBytes, err := proto.Marshal(ccHdrExt)
 	if err != nil {

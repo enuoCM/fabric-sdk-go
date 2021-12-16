@@ -8,6 +8,8 @@ package txn
 
 import (
 	reqContext "context"
+	"fmt"
+	"github.com/hyperledger/fabric-sdk-go/pkg/common/logging"
 	"sync"
 
 	"github.com/golang/protobuf/proto"
@@ -59,6 +61,7 @@ func CreateChaincodeInvokeProposal(txh fab.TransactionHeader, request fab.Chainc
 
 // signProposal creates a SignedProposal based on the current context.
 func signProposal(ctx contextApi.Client, proposal *pb.Proposal) (*pb.SignedProposal, error) {
+	defer logging.TraceTime()()
 	proposalBytes, err := proto.Marshal(proposal)
 	if err != nil {
 		return nil, errors.Wrap(err, "mashal proposal failed")
@@ -79,7 +82,7 @@ func signProposal(ctx contextApi.Client, proposal *pb.Proposal) (*pb.SignedPropo
 
 // SendProposal sends a TransactionProposal to ProposalProcessor.
 func SendProposal(reqCtx reqContext.Context, proposal *fab.TransactionProposal, targets []fab.ProposalProcessor) ([]*fab.TransactionProposalResponse, error) {
-
+	defer logging.TraceTime()()
 	if proposal == nil {
 		return nil, errors.New("proposal is required")
 	}
@@ -95,7 +98,7 @@ func SendProposal(reqCtx reqContext.Context, proposal *fab.TransactionProposal, 
 	}
 
 	targets = getTargetsWithoutDuplicates(targets)
-
+    fmt.Printf("targes len %d", len(targets))
 	ctx, ok := context.RequestClientContext(reqCtx)
 	if !ok {
 		return nil, errors.New("failed get client context from reqContext for signProposal")

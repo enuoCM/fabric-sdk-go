@@ -8,6 +8,7 @@ package invoke
 
 import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/client/common/verifier"
+	"github.com/hyperledger/fabric-sdk-go/pkg/common/logging"
 	"github.com/hyperledger/fabric-sdk-go/pkg/common/providers/fab"
 
 	"github.com/pkg/errors"
@@ -26,6 +27,7 @@ type SignatureValidationHandler struct {
 //Handle for Filtering proposal response
 func (f *SignatureValidationHandler) Handle(requestContext *RequestContext, clientContext *ClientContext) {
 	//Filter tx proposal responses
+	defer logging.TraceTime()()
 	err := f.validate(requestContext, clientContext)
 	if err != nil {
 		requestContext.Error = errors.WithMessage(err, "signature validation failed")

@@ -45,6 +45,7 @@ func NewSelectAndEndorseHandler(next ...Handler) Handler {
 
 // Handle selects endorsers and sends proposals to the endorsers
 func (e *SelectAndEndorseHandler) Handle(requestContext *RequestContext, clientContext *ClientContext) {
+	defer logging.TraceTime()()
 	var ccCalls []*fab.ChaincodeCall
 	targets := requestContext.Opts.Targets
 	if len(targets) == 0 {
